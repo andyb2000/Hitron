@@ -21,7 +21,7 @@ __email__ = "tom@tcpip.uk"
 __status__ = "Production"
 
 class Hitron:
-  def __init__(self, host, usr, pwd, retry=2, https=False, times=False):
+  def __init__(self, host, usr, pwd, retry=2, https=False, times=False, newmodel=False):
     # Store variables
     self.host = host
     self.usr = usr
@@ -40,6 +40,8 @@ class Hitron:
     self.retry = retry
     # Whether to output time taken for each command
     self.times = times
+    # determine new model code
+    self.newmodel = newmodel
     # Set run environment
     self.baseUrl = self.protocol + '://' + self.host + '/'
     self.loggedIn = False
@@ -61,10 +63,15 @@ class Hitron:
   def connect(self):
     # Attempt login (must be >=2 times to get session then use to login)
     for n in range(2):
-      payload = { 'usr': self.usr,
-                  'pwd': self.pwd,
-                  'forcelogoff': 1,
-                  'preSession': self.session.cookies.get('preSession') }
+      if self.newmodel:
+          payload = { 'user_login': self.usr,
+                      'user_password': self.pwd,
+                      
+      else:
+          payload = { 'usr': self.usr,
+                      'pwd': self.pwd,
+                      'forcelogoff': 1,
+                      'preSession': self.session.cookies.get('preSession') }
       try:
         response = self.session.post(self.baseUrl + 'goform/login', data=payload, timeout=3)
       # Fail when no response within timeout

@@ -111,3 +111,35 @@ If you have one of these routers, your GRE tunnel will negotiate _after_ the DOC
 ## TODO
 * HTTPS login, I suspect this fails currently due to the self-signed SSL certificate
 * Testing with other models/variants of Hitron router
+
+## Updates2024
+
+Model is Chita as found from http://192.168.0.1/1/Device/CM/Basicinfo
+{"errCode":"000","errMsg":"","modelName":"CHITA","GuiStyle":"RED"}
+
+JS code is http://192.168.0.1/webpages/lib/jquery.hitronext.js
+isChita function returns true due to output of Basicinfo
+
+Encrypt the login data as json:
+{"username":"", "password":"", "forcelogin":"0"}
+
+password is encrypted using SJCL (https://github.com/bitwiseshiftleft/sjcl)
+key is username followed by password to encrypt.
+parameters to SJCL:
+var p = { adata: randomize(1, 0),
+                iv: randomize(4, 0),
+                salt: randomize(2, 0),
+                iter: 10000,
+                mode: 'gcm',
+                ts: 64,
+                ks: 128 };
+In python we can use https://github.com/berlincode/sjcl:
+from sjcl import SJCL
+
+encrypt(self, plaintext, passphrase, mode="gcm", count=10000, dkLen=??):
+
+Then post this json to: http://192.168.0.1/1/Device/Users/Login
+json result should be returned containing result = success
+If so then redirect to /index.html#status_system/m/1/s/1
+
+
